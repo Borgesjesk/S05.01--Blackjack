@@ -1,6 +1,9 @@
 package cat.itacademy.s05.t01.blackjack.domain.model;
 
 import cat.itacademy.s05.t01.blackjack.domain.event.GameFinishedEvent;
+import cat.itacademy.s05.t01.blackjack.domain.model.snapshot.DeckSnapshot;
+import cat.itacademy.s05.t01.blackjack.domain.model.snapshot.GameSnapshot;
+import cat.itacademy.s05.t01.blackjack.domain.model.snapshot.HandSnapshot;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -64,12 +67,10 @@ public class Game {
     // --- Factory: reconstitute from persistence ---
 
     public static Game reconstitute(String id, Deck deck, Hand playerHand,
-                                     Hand dealerHand, GameState state,
-                                     Instant createdAt) {
+                                    Hand dealerHand, GameState state,
+                                    Instant createdAt) {
         return new Game(id, deck, playerHand, dealerHand, state, createdAt);
     }
-
-    // --- Player actions ---
 
     public void playerHit() {
         assertState(GameState.PLAYER_TURN, "Player can only hit during their turn");
@@ -159,10 +160,38 @@ public class Game {
 
     // --- Getters ---
 
-    public String id() { return id; }
-    public Hand playerHand() { return playerHand; }
-    public Hand dealerHand() { return dealerHand; }
-    public Deck deck() { return deck; }
-    public GameState state() { return state; }
-    public Instant createdAt() { return createdAt; }
+    public String id() {
+        return id;
+    }
+
+    public Hand playerHand() {
+        return playerHand;
+    }
+
+    public Hand dealerHand() {
+        return dealerHand;
+    }
+
+    public Deck deck() {
+        return deck;
+    }
+
+    public GameState state() {
+        return state;
+    }
+
+    public Instant createdAt() {
+        return createdAt;
+    }
+
+    public GameSnapshot toSnapshot() {
+        return new GameSnapshot(
+                this.id,
+                new DeckSnapshot(this.deck.cards()),
+                new HandSnapshot(this.playerHand.cards()),
+                new HandSnapshot(this.dealerHand.cards()),
+                this.state,
+                this.createdAt
+        );
+    }
 }
