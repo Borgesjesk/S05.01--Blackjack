@@ -1,0 +1,24 @@
+package cat.itacademy.s05.t01.blackjack.application.exception;
+
+import cat.itacademy.s05.t01.blackjack.application.dto.GameResponseDTO;
+import cat.itacademy.s05.t01.blackjack.domain.model.Game;
+import cat.itacademy.s05.t01.blackjack.domain.port.GameRepository;
+
+import java.util.Collections;
+
+public class StartGameUseCase {
+
+    private final GameRepository gameRepository;
+
+    public StartGameUseCase(GameRepository gameRepository) {
+        this.gameRepository = gameRepository;
+    }
+
+    public GameResponseDTO execute() {
+        Game game = Game.start(cards -> Collections.shuffle(cards));
+
+        gameRepository.save(game);
+
+        return GameResponseDTO.fromDomainSnapshot(game.toSnapshot());
+    }
+}
