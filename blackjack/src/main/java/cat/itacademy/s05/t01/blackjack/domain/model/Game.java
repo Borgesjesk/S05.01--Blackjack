@@ -194,4 +194,15 @@ public class Game {
                 this.createdAt
         );
     }
+
+    public static Game fromSnapshot(GameSnapshot snapshot) {
+        return reconstitute(
+                snapshot.gameId(),
+                Deck.fromExisting(snapshot.deck().cards()),
+                new Hand(snapshot.playerHand().cards()),
+                new Hand(snapshot.dealerHand().cards()),
+                snapshot.gameState(),
+                snapshot.createdAt()
+        );
+    }
 }
