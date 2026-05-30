@@ -1,4 +1,4 @@
-package cat.itacademy.s05.t01.blackjack.application.exception;
+package cat.itacademy.s05.t01.blackjack.application.usecase;
 
 import cat.itacademy.s05.t01.blackjack.application.dto.GameResponseDTO;
 import cat.itacademy.s05.t01.blackjack.domain.model.Game;

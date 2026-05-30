@@ -8,7 +8,7 @@ import cat.itacademy.s05.t01.blackjack.domain.model.snapshot.GameSnapshot;
 import java.util.List;
 
 public record GameResponseDTO(
-        String gameID,
+        String gameId,
         GameState status,
         HandDTO playerHand,
         DealerHandDTO dealerHand

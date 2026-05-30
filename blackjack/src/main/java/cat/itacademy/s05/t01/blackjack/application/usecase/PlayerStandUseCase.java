@@ -1,14 +1,15 @@
-package cat.itacademy.s05.t01.blackjack.application.exception;
+package cat.itacademy.s05.t01.blackjack.application.usecase;
 
 import cat.itacademy.s05.t01.blackjack.application.dto.GameResponseDTO;
+import cat.itacademy.s05.t01.blackjack.application.exception.GameNotFoundException;
 import cat.itacademy.s05.t01.blackjack.domain.model.Game;
 import cat.itacademy.s05.t01.blackjack.domain.port.GameRepository;
 
-public class PlayerHitUseCase {
+public class PlayerStandUseCase {
 
     private final GameRepository gameRepository;
 
-    public PlayerHitUseCase(GameRepository gameRepository) {
+    public PlayerStandUseCase(GameRepository gameRepository) {
         this.gameRepository = gameRepository;
     }
 
