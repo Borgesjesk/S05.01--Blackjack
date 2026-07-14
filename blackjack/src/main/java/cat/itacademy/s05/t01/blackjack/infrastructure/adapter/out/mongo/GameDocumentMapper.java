@@ -20,12 +20,12 @@ public class GameDocumentMapper {
 
         List<GameDocument.CardDocument> playerCards = mapToCardDocuments(snapshot.playerHand().cards());
         List<GameDocument.CardDocument> dealerCards = mapToCardDocuments(snapshot.dealerHand().cards());
-
         List<GameDocument.CardDocument> deckCards = mapToCardDocuments(snapshot.deck().cards());
 
         return new GameDocument(
                 snapshot.gameId(),
                 snapshot.gameState().name(),
+                snapshot.playerName(),
                 new GameDocument.HandDocument(playerCards),
                 new GameDocument.HandDocument(dealerCards),
                 deckCards
@@ -47,7 +47,8 @@ public class GameDocumentMapper {
                 new HandSnapshot(playerCards),
                 new HandSnapshot(dealerCards),
                 GameState.valueOf(document.getGameState()),
-                document.getCreatedAt()
+                document.getCreatedAt(),
+                document.getPlayerName()
         );
     }
 

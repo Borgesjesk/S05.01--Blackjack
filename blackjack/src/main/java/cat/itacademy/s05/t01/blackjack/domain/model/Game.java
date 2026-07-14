@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 public class Game {
 
     private static final int DEALER_STAND_THRESHOLD = 17;
+    private static final String DEFAULT_PLAYER_NAME = "Anonymous";
 
     private final String id;
     private final Deck deck;
@@ -23,20 +24,20 @@ public class Game {
     private final Hand dealerHand;
     private final Instant createdAt;
     private GameState state;
+    private String playerName;
 
     private final List<Object> domainEvents = new ArrayList<>();
 
     private Game(String id, Deck deck, Hand playerHand, Hand dealerHand,
-                 GameState state, Instant createdAt) {
+                 GameState state, Instant createdAt, String playerName) {
         this.id = Objects.requireNonNull(id);
         this.deck = Objects.requireNonNull(deck);
         this.playerHand = Objects.requireNonNull(playerHand);
         this.dealerHand = Objects.requireNonNull(dealerHand);
         this.state = Objects.requireNonNull(state);
         this.createdAt = Objects.requireNonNull(createdAt);
+        this.playerName = Objects.requireNonNull(playerName);
     }
-
-    // --- Factory: new game ---
 
     public static Game start(Consumer<List<Card>> shuffleStrategy) {
         Objects.requireNonNull(shuffleStrategy, "Shuffle strategy must not be null");
@@ -45,7 +46,6 @@ public class Game {
         Hand playerHand = new Hand();
         Hand dealerHand = new Hand();
 
-        // Deal initial hands: player-dealer-player-dealer
         playerHand.addCard(deck.draw());
         dealerHand.addCard(deck.draw());
         playerHand.addCard(deck.draw());
@@ -57,19 +57,18 @@ public class Game {
                 playerHand,
                 dealerHand,
                 GameState.PLAYER_TURN,
-                Instant.now()
+                Instant.now(),
+                DEFAULT_PLAYER_NAME
         );
 
         game.checkInitialBlackjack();
         return game;
     }
 
-    // --- Factory: reconstitute from persistence ---
-
     public static Game reconstitute(String id, Deck deck, Hand playerHand,
                                     Hand dealerHand, GameState state,
-                                    Instant createdAt) {
-        return new Game(id, deck, playerHand, dealerHand, state, createdAt);
+                                    Instant createdAt, String playerName) {
+        return new Game(id, deck, playerHand, dealerHand, state, createdAt, playerName);
     }
 
     public void playerHit() {
@@ -87,7 +86,12 @@ public class Game {
         resolveDealerTurn();
     }
 
-    // --- Dealer logic ---
+    public void renamePlayer(String newName) {
+        if (newName == null || newName.isBlank()) {
+            throw new IllegalArgumentException("Player name must not be blank");
+        }
+        this.playerName = newName.trim();
+    }
 
     private void resolveDealerTurn() {
         while (dealerHand.score() < DEALER_STAND_THRESHOLD) {
@@ -114,8 +118,6 @@ public class Game {
         }
     }
 
-    // --- Initial blackjack check ---
-
     private void checkInitialBlackjack() {
         boolean playerBj = playerHand.isBlackjack();
         boolean dealerBj = dealerHand.isBlackjack();
@@ -129,12 +131,10 @@ public class Game {
         }
     }
 
-    // --- Domain event management ---
-
     private void finishGame(GameState finalState) {
         this.state = finalState;
         domainEvents.add(new GameFinishedEvent(
-                id, finalState, playerHand.score(), dealerHand.score(), Instant.now()
+                id, playerName, finalState, playerHand.score(), dealerHand.score(), Instant.now()
         ));
     }
 
@@ -146,8 +146,6 @@ public class Game {
         domainEvents.clear();
     }
 
-    // --- State guards ---
-
     private void assertState(GameState expected, String message) {
         if (this.state != expected) {
             throw new IllegalStateException(message + ". Current state: " + state);
@@ -158,10 +156,12 @@ public class Game {
         return state != GameState.PLAYER_TURN && state != GameState.DEALER_TURN;
     }
 
-    // --- Getters ---
-
     public String id() {
         return id;
+    }
+
+    public String playerName() {
+        return playerName;
     }
 
     public Hand playerHand() {
@@ -191,7 +191,8 @@ public class Game {
                 new HandSnapshot(this.playerHand.cards()),
                 new HandSnapshot(this.dealerHand.cards()),
                 this.state,
-                this.createdAt
+                this.createdAt,
+                this.playerName
         );
     }
 
@@ -202,7 +203,8 @@ public class Game {
                 new Hand(snapshot.playerHand().cards()),
                 new Hand(snapshot.dealerHand().cards()),
                 snapshot.gameState(),
-                snapshot.createdAt()
+                snapshot.createdAt(),
+                snapshot.playerName()
         );
     }
 }

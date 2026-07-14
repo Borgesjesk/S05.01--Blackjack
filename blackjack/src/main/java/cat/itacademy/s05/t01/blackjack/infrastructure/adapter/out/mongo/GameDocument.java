@@ -30,6 +30,9 @@ public class GameDocument {
     @Field("game_state")
     private final String gameState;
 
+    @Field("player_name")
+    private final String playerName;
+
     @Field("player_hand")
     private final HandDocument playerHand;
 
@@ -43,12 +46,14 @@ public class GameDocument {
     public GameDocument(
             String id,
             String gameState,
+            String playerName,
             HandDocument playerHand,
             HandDocument dealerHand,
             List<CardDocument> deck
     ) {
         this.id = id;
         this.gameState = gameState;
+        this.playerName = playerName;
         this.playerHand = playerHand;
         this.dealerHand = dealerHand;
         this.deck = deck;
@@ -60,6 +65,10 @@ public class GameDocument {
 
     public String getGameState() {
         return gameState;
+    }
+
+    public String getPlayerName() {
+        return playerName;
     }
 
     public HandDocument getPlayerHand() {
@@ -99,22 +108,22 @@ public class GameDocument {
         }
     }
 
-        public static class CardDocument {
-            private final String suit;
-            private final String rank;
+    public static class CardDocument {
+        private final String suit;
+        private final String rank;
 
-            @PersistenceCreator
-            public CardDocument(String suit, String rank) {
-                this.suit = suit;
-                this.rank = rank;
-            }
+        @PersistenceCreator
+        public CardDocument(String suit, String rank) {
+            this.suit = suit;
+            this.rank = rank;
+        }
 
-            public String getSuit() {
-                return suit;
-            }
+        public String getSuit() {
+            return suit;
+        }
 
-            public String getRank() {
-                return rank;
-            }
+        public String getRank() {
+            return rank;
         }
     }
+}

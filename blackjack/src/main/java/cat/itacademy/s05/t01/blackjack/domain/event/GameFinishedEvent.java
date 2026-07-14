@@ -6,6 +6,7 @@ import java.time.Instant;
 
 public record GameFinishedEvent(
         String gameId,
+        String playerName,
         GameState result,
         int playerScore,
         int dealerScore,

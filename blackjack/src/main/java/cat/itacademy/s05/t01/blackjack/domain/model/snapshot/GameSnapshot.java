@@ -10,6 +10,7 @@ public record GameSnapshot(
         HandSnapshot playerHand,
         HandSnapshot dealerHand,
         GameState gameState,
-        Instant createdAt
+        Instant createdAt,
+        String playerName
 ) {
 }
