@@ -16,10 +16,8 @@ public class PlayerStandUseCase {
     public GameResponseDTO execute(String gameId) {
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new GameNotFoundException(gameId));
-
-        game.playerHit();
+        game.playerStand();
         gameRepository.save(game);
-
         return GameResponseDTO.fromDomainSnapshot(game.toSnapshot());
     }
 }
