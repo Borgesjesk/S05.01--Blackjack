@@ -1,7 +1,6 @@
 package cat.itacademy.s05.t01.blackjack.infrastructure.adapter.out.mysql;
 
 import cat.itacademy.s05.t01.blackjack.domain.model.GameState;
-
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -11,7 +10,8 @@ import java.util.Objects;
 @Table(
         name = "game_results",
         indexes = {
-                @Index(name = "idx_leaderboard", columnList = "player_score, finished_at")
+                @Index(name = "idx_player_name", columnList = "player_name"),
+                @Index(name = "idx_result", columnList = "result")
         }
 )
 public class GameResultEntity {
@@ -19,6 +19,9 @@ public class GameResultEntity {
     @Id
     @Column(name = "game_id", length = 36, nullable = false, updatable = false)
     private String gameId;
+
+    @Column(name = "player_name", length = 100, nullable = false, updatable = false)
+    private String playerName;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "result", length = 20, nullable = false, updatable = false)
@@ -33,9 +36,13 @@ public class GameResultEntity {
     @Column(name = "finished_at", nullable = false, updatable = false)
     private Instant finishedAt;
 
-    protected GameResultEntity(String gameId, GameState result, int playerScore,
-                               int dealerScore, Instant finishedAt) {
+    protected GameResultEntity() {
+    }
+
+    public GameResultEntity(String gameId, String playerName, GameState result,
+                            int playerScore, int dealerScore, Instant finishedAt) {
         this.gameId = Objects.requireNonNull(gameId);
+        this.playerName = Objects.requireNonNull(playerName);
         this.result = Objects.requireNonNull(result);
         this.playerScore = playerScore;
         this.dealerScore = dealerScore;
@@ -44,6 +51,10 @@ public class GameResultEntity {
 
     public String getGameId() {
         return gameId;
+    }
+
+    public String getPlayerName() {
+        return playerName;
     }
 
     public GameState getResult() {

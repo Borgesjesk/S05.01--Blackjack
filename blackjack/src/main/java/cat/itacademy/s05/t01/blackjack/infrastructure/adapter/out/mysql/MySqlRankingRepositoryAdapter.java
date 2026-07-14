@@ -20,6 +20,7 @@ public class MySqlRankingRepositoryAdapter implements RankingRepository {
     public void saveGameResult(GameResult result) {
         GameResultEntity entity = new GameResultEntity(
                 result.gameId(),
+                result.playerName(),
                 GameState.valueOf(result.result()),
                 result.playerScore(),
                 result.dealerScore(),
@@ -29,15 +30,9 @@ public class MySqlRankingRepositoryAdapter implements RankingRepository {
     }
 
     @Override
-    public List<GameResult> findTopPlayers(int limit) {
-        return repository.findTopWinners(PageRequest.of(0, limit)).stream()
-                .map(entity -> new GameResult(
-                        entity.getGameId(),
-                        entity.getResult().name(),
-                        entity.getPlayerScore(),
-                        entity.getDealerScore(),
-                        entity.getFinishedAt()
-                ))
+    public List<PlayerRanking> findRanking(int limit) {
+        return repository.findRanking(PageRequest.of(0, limit)).stream()
+                .map(p -> new PlayerRanking(p.getPlayerName(), p.getWins(), p.getGamesPlayed()))
                 .toList();
     }
 }
