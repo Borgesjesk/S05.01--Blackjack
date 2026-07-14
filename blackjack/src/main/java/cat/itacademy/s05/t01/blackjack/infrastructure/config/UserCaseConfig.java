@@ -1,10 +1,8 @@
 package cat.itacademy.s05.t01.blackjack.infrastructure.config;
 
-import cat.itacademy.s05.t01.blackjack.application.usecase.GetGameUseCase;
-import cat.itacademy.s05.t01.blackjack.application.usecase.PlayerHitUseCase;
-import cat.itacademy.s05.t01.blackjack.application.usecase.PlayerStandUseCase;
-import cat.itacademy.s05.t01.blackjack.application.usecase.StartGameUseCase;
+import cat.itacademy.s05.t01.blackjack.application.usecase.*;
 import cat.itacademy.s05.t01.blackjack.domain.port.GameRepository;
+import cat.itacademy.s05.t01.blackjack.domain.port.RankingRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,5 +27,15 @@ public class UserCaseConfig {
     @Bean
     public GetGameUseCase getGameUseCase(GameRepository gameRepository) {
         return new GetGameUseCase(gameRepository);
+    }
+
+    @Bean
+    public RenamePlayerUseCase renamePlayerUseCase(GameRepository gameRepository) {
+        return new RenamePlayerUseCase(gameRepository);
+    }
+
+    @Bean
+    public GetRankingUseCase getRankingUseCase(RankingRepository rankingRepository) {
+        return new GetRankingUseCase(rankingRepository);
     }
 }

@@ -1,10 +1,11 @@
 package cat.itacademy.s05.t01.blackjack.infrastructure.adapter.in.rest;
 
 import cat.itacademy.s05.t01.blackjack.application.dto.GameResponseDTO;
-
+import cat.itacademy.s05.t01.blackjack.application.dto.PlayerRenameRequestDTO;
 import cat.itacademy.s05.t01.blackjack.application.usecase.GetGameUseCase;
 import cat.itacademy.s05.t01.blackjack.application.usecase.PlayerHitUseCase;
 import cat.itacademy.s05.t01.blackjack.application.usecase.PlayerStandUseCase;
+import cat.itacademy.s05.t01.blackjack.application.usecase.RenamePlayerUseCase;
 import cat.itacademy.s05.t01.blackjack.application.usecase.StartGameUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,7 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -29,29 +30,30 @@ public class GameRestController {
     private final PlayerHitUseCase playerHitUseCase;
     private final PlayerStandUseCase playerStandUseCase;
     private final GetGameUseCase getGameUseCase;
+    private final RenamePlayerUseCase renamePlayerUseCase;
 
     public GameRestController(
             StartGameUseCase startGameUseCase,
             PlayerHitUseCase playerHitUseCase,
             PlayerStandUseCase playerStandUseCase,
-            GetGameUseCase getGameUseCase
+            GetGameUseCase getGameUseCase,
+            RenamePlayerUseCase renamePlayerUseCase
     ) {
         this.startGameUseCase = startGameUseCase;
         this.playerHitUseCase = playerHitUseCase;
         this.playerStandUseCase = playerStandUseCase;
         this.getGameUseCase = getGameUseCase;
+        this.renamePlayerUseCase = renamePlayerUseCase;
     }
 
     @PostMapping
-    @Operation(summary = "Start a new game", description = "Initializes a new Blackjack game, deals initial cards, and returns the starting state.")
+    @Operation(summary = "Start a new game")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Game successfully created",
                     content = @Content(schema = @Schema(implementation = GameResponseDTO.class)))
     })
-
     public ResponseEntity<GameResponseDTO> createGame() {
         GameResponseDTO response = startGameUseCase.execute();
-
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -61,45 +63,31 @@ public class GameRestController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get game state", description = "Retrieves the current state of a specific game by its ID.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Game retrieved successfully"),
-            @ApiResponse(responseCode = "404", description = "Game not found", content = @Content)
-    })
-
+    @Operation(summary = "Get game state")
     public ResponseEntity<GameResponseDTO> getGame(
-            @Parameter(description = "The unique identifier of the game")
-            @PathVariable String id) {
-
-        GameResponseDTO response = getGameUseCase.execute(id);
-        return ResponseEntity.ok(response);
+            @Parameter(description = "The unique identifier of the game") @PathVariable String id) {
+        return ResponseEntity.ok(getGameUseCase.execute(id));
     }
 
     @PostMapping("/{id}/hit")
-    @Operation(summary = "Player hits", description = "Deals an additional card to the player. Automatically evaluates for bust or 21.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Card dealt successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid action (e.g., game already finished)", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Game not found", content = @Content)
-    })
-
+    @Operation(summary = "Player hits")
     public ResponseEntity<GameResponseDTO> playerHit(
-            @Parameter(description = "The unique identifier of the game ") @PathVariable String id) {
-        GameResponseDTO response = playerHitUseCase.execute(id);
-        return ResponseEntity.ok(response);
+            @Parameter(description = "The unique identifier of the game") @PathVariable String id) {
+        return ResponseEntity.ok(playerHitUseCase.execute(id));
     }
 
     @PostMapping("/{id}/stand")
-    @Operation(summary = "Player stands", description = "Ends the player's turn, trigger the dealer's automated play, and resolves the game outcome.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Player stood successfully; dealer played and game resolved"),
-            @ApiResponse(responseCode = "400", description = "Invalid action (e.g., game already finished", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Game not found", content = @Content)
-    })
-
+    @Operation(summary = "Player stands")
     public ResponseEntity<GameResponseDTO> playerStand(
             @Parameter(description = "The unique identifier of the game") @PathVariable String id) {
-        GameResponseDTO response = playerStandUseCase.execute(id);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(playerStandUseCase.execute(id));
+    }
+
+    @PutMapping("/{id}/player")
+    @Operation(summary = "Rename the player of a game")
+    public ResponseEntity<GameResponseDTO> renamePlayer(
+            @Parameter(description = "The unique identifier of the game") @PathVariable String id,
+            @Valid @RequestBody PlayerRenameRequestDTO request) {
+        return ResponseEntity.ok(renamePlayerUseCase.execute(id, request.playerName()));
     }
 }

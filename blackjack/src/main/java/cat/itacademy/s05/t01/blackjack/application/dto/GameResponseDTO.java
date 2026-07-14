@@ -9,19 +9,16 @@ import java.util.List;
 
 public record GameResponseDTO(
         String gameId,
+        String playerName,
         GameState status,
         HandDTO playerHand,
         DealerHandDTO dealerHand
 ) {
+    public record HandDTO(List<CardDTO> cards, int score) {}
 
-    public record HandDTO(List<CardDTO> cards, int score) {
-    }
+    public record DealerHandDTO(List<CardDTO> cards, int visibleScore) {}
 
-    public record DealerHandDTO(List<CardDTO> cards, int visibleScore) {
-    }
-
-    public record CardDTO(String suit, String rank) {
-    }
+    public record CardDTO(String suit, String rank) {}
 
     public static GameResponseDTO fromDomainSnapshot(GameSnapshot snapshot) {
         List<Card> playerDomainCards = snapshot.playerHand().cards();
@@ -30,10 +27,8 @@ public record GameResponseDTO(
 
         DealerHandDTO dealerHandMapped;
         List<Card> dealerDomainCards = snapshot.dealerHand().cards();
-
         if (snapshot.gameState() == GameState.PLAYER_TURN) {
             Card upcard = dealerDomainCards.get(0);
-
             int visibleScore = new Hand(List.of(upcard)).score();
             dealerHandMapped = new DealerHandDTO(mapCardsToDTO(List.of(upcard)), visibleScore);
         } else {
@@ -43,6 +38,7 @@ public record GameResponseDTO(
 
         return new GameResponseDTO(
                 snapshot.gameId(),
+                snapshot.playerName(),
                 snapshot.gameState(),
                 playerHandMapped,
                 dealerHandMapped
