@@ -15,9 +15,6 @@ public class GameDocument {
     @Id
     private String id;
 
-    @Version
-    private Long version;
-
     @CreatedDate
     @Field("created_at")
     private Instant createdAt;
@@ -81,10 +78,6 @@ public class GameDocument {
 
     public List<CardDocument> getDeck() {
         return deck;
-    }
-
-    public Long getVersion() {
-        return version;
     }
 
     public Instant getCreatedAt() {

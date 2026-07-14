@@ -3,6 +3,7 @@ package cat.itacademy.s05.t01.blackjack.infrastructure.adapter.out.mongo;
 import cat.itacademy.s05.t01.blackjack.domain.model.Game;
 import cat.itacademy.s05.t01.blackjack.domain.port.GameRepository;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -11,11 +12,14 @@ import java.util.Optional;
 public class MongoRepositoryAdapter implements GameRepository {
 
     private final SpringDataMongoGameRepository repository;
+    private final MongoTemplate mongoTemplate;
     private final ApplicationEventPublisher eventPublisher;
 
     public MongoRepositoryAdapter(SpringDataMongoGameRepository repository,
+                                  MongoTemplate mongoTemplate,
                                   ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
+        this.mongoTemplate = mongoTemplate;
         this.eventPublisher = eventPublisher;
     }
 
@@ -26,7 +30,11 @@ public class MongoRepositoryAdapter implements GameRepository {
         }
         var snapshot = game.toSnapshot();
         GameDocument document = GameDocumentMapper.toDocument(snapshot);
-        repository.save(document);
+
+        repository.findById(document.getId()).ifPresentOrElse(
+                existing -> mongoTemplate.save(document),
+                () -> repository.insert(document)
+        );
 
         game.domainEvents().forEach(eventPublisher::publishEvent);
         game.clearDomainEvents();

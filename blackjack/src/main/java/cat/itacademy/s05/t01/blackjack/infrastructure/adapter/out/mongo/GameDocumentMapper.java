@@ -47,8 +47,8 @@ public class GameDocumentMapper {
                 new HandSnapshot(playerCards),
                 new HandSnapshot(dealerCards),
                 GameState.valueOf(document.getGameState()),
-                document.getCreatedAt(),
-                document.getPlayerName()
+                document.getCreatedAt() != null ? document.getCreatedAt() : java.time.Instant.now(),
+                document.getPlayerName() != null ? document.getPlayerName() : "Anonymous"
         );
     }
 
