@@ -1,27 +1,38 @@
 # 🎰 Blackjack API — Sprint 5.01
 
-Backend de Blackjack construído em **arquitetura hexagonal** com **Java 21**, **Spring Boot 3.5** e persistência dupla — **MongoDB** para o estado do jogo, **MySQL** para o ranking dos jogadores.
+Blackjack backend built with **hexagonal architecture** using **Java 21** and **Spring Boot 3.5**. Dual persistence: **MongoDB Atlas** for game state, **MySQL** (Railway) for the player ranking.
 
-Projeto final do bootcamp de Java Backend do **IT Academy — Barcelona Activa** 🇪🇸
+
+---
+
+## 🌍 Live demo
+
+- 🚀 **API:** https://s05-01-blackjack.onrender.com
+- 📖 **Swagger UI:** https://s05-01-blackjack.onrender.com/swagger-ui.html
+- 🐳 **Docker Hub:** [`borgesjesk/blackjack-api`](https://hub.docker.com/r/borgesjesk/blackjack-api)
+
+
 
 ---
 
 ## 🧱 Stack
 
 - ☕ Java 21 (Temurin)
-- 🍃 Spring Boot 3.5.0
-- 🍀 MongoDB Atlas (estado do jogo)
-- 🐬 MySQL / Railway (rankings)
-- 📖 Swagger / OpenAPI
+- 🍃 Spring Boot 3.5.0 (Spring MVC)
+- 🍀 MongoDB Atlas — game state
+- 🐬 MySQL / Railway — player ranking
+- 📖 Swagger / OpenAPI (springdoc)
 - 🧪 JUnit 5 + Mockito + AssertJ
 - 📊 JaCoCo (coverage)
+- 🐳 Docker
+- ☁️ Render (deployment)
 - 🎯 Maven
 
 ---
 
-## 🏛️ Arquitetura
+## 🏛️ Architecture
 
-Hexagonal (Ports & Adapters). O domínio é **Java puro**, sem Spring, sem anotações de framework — totalmente isolado da infraestrutura.
+Hexagonal (Ports & Adapters). The domain is **pure Java** — no Spring, no framework annotations, fully isolated from the infrastructure.
 
 ```
 cat.itacademy.s05.t01.blackjack
@@ -40,13 +51,13 @@ cat.itacademy.s05.t01.blackjack
     └── config/                   ← Spring configuration
 ```
 
-**Decisões-chave:**
+**Key decisions:**
 
-- 🃏 `Deck` recebe um `Consumer<List<Card>>` como estratégia de shuffle → em produção usa `Collections::shuffle`, nos testes usa ordem fixa (**testes determinísticos**)
-- 📸 `Game.toSnapshot()` / `Game.fromSnapshot()` → persistência sem quebrar encapsulamento
-- 📢 `GameFinishedEvent` publicado via `ApplicationEventPublisher` → listener grava o resultado no MySQL de forma assíncrona
-- 🎯 Dealer para em 17+ (regra clássica, explícita e testada)
-- 🔐 Credenciais nunca no código — tudo por variáveis de ambiente
+- 🃏 `Deck` takes a `Consumer<List<Card>>` as its shuffle strategy → production uses `Collections::shuffle`, tests use a fixed order → **deterministic tests**
+- 📸 `Game.toSnapshot()` / `Game.fromSnapshot()` → persistence without breaking encapsulation
+- 📢 `GameFinishedEvent` published via `ApplicationEventPublisher` → listener writes the result to MySQL in a decoupled way
+- 🎯 Dealer stands on **17+** (classic casino rule, explicit and tested)
+- 🔐 Credentials **never** in code — everything via environment variables
 
 ---
 
@@ -54,38 +65,39 @@ cat.itacademy.s05.t01.blackjack
 
 Base URL: `http://localhost:8082`
 
-### Jogo — `/api/v1/games`
+### Games — `/api/v1/games`
 
-| Método | Path | Descrição |
+| Method | Path | Description |
 |---|---|---|
-| `POST` | `/api/v1/games` | Cria um novo jogo e distribui as cartas iniciais |
-| `GET` | `/api/v1/games/{id}` | Consulta o estado atual do jogo |
-| `POST` | `/api/v1/games/{id}/hit` | Player pede mais uma carta |
-| `POST` | `/api/v1/games/{id}/stand` | Player planta — dealer joga e o resultado é resolvido |
-| `PUT` | `/api/v1/games/{id}/player` | Renomeia o player de um jogo |
+| `POST` | `/api/v1/games` | Creates a new game and deals the initial cards |
+| `GET` | `/api/v1/games/{id}` | Returns the current game state |
+| `POST` | `/api/v1/games/{id}/hit` | Player draws an extra card |
+| `POST` | `/api/v1/games/{id}/stand` | Player stands — dealer plays and the game resolves |
+| `PUT` | `/api/v1/games/{id}/player` | Renames the player of a game |
+| `DELETE` | `/api/v1/games/{id}` | Deletes a game |
 
 ### Ranking — `/api/v1/ranking`
 
-| Método | Path | Descrição |
+| Method | Path | Description |
 |---|---|---|
-| `GET` | `/api/v1/ranking?limit=10` | Retorna os players ordenados por vitórias |
+| `GET` | `/api/v1/ranking?limit=10` | Returns the leaderboard, sorted by wins |
 
-📖 **Documentação Swagger**: `http://localhost:8082/swagger-ui.html`
+📖 **Swagger documentation:** `/swagger-ui.html`
 
 ---
 
-## ▶️ Como rodar
+## ▶️ Run locally
 
-### 1️⃣ Pré-requisitos
+### 1️⃣ Prerequisites
 
 - Java 21
 - Maven 3.9+
-- Uma instância MongoDB (Atlas ou local)
-- Uma instância MySQL (Railway, local, Docker...)
+- A MongoDB instance (Atlas or local)
+- A MySQL instance (Railway, Docker, local...)
 
-### 2️⃣ Variáveis de ambiente
+### 2️⃣ Environment variables
 
-Configure no IntelliJ (Run Configuration → Environment variables):
+Configure in IntelliJ (Run Configuration → Environment variables) or export before running:
 
 ```
 MONGODB_URI=mongodb+srv://<user>:<pass>@<cluster>.mongodb.net/blackjack
@@ -101,63 +113,97 @@ mvn clean install
 mvn spring-boot:run
 ```
 
-App sobe em `http://localhost:8082` 🚀
+App runs at `http://localhost:8082` 🚀
 
 ---
 
-## 🧪 Testes
+## 🐳 Run with Docker
+
+**Pull the public image:**
+
+```bash
+docker pull borgesjesk/blackjack-api:latest
+```
+
+**Run the container:**
+
+```bash
+docker run -d --name blackjack -p 8082:8082 \
+  -e MONGODB_URI="mongodb+srv://<user>:<pass>@<cluster>.mongodb.net/blackjack" \
+  -e MYSQL_URL="jdbc:mysql://<host>:<port>/<database>" \
+  -e MYSQL_USER="<user>" \
+  -e MYSQL_PASS="<pass>" \
+  borgesjesk/blackjack-api:latest
+```
+
+Or build it locally:
+
+```bash
+docker build -t blackjack-api .
+```
+
+---
+
+## 🧪 Tests
 
 ```bash
 mvn test
 ```
 
-**Cobertura:**
+**Coverage:**
 
-- ✅ Domínio puro — `Card`, `Hand`, `Deck`, `Game` (lifecycle, blackjack, bust, stand, guards, eventos)
-- ✅ Use cases — happy path + unhappy path para todos
-- ✅ Listener — verifica que `GameFinishedEvent` grava corretamente no ranking
-- ✅ Testes determinísticos com shuffle strategy injetado
+- ✅ Pure domain — `Card`, `Hand`, `Deck`, `Game` (lifecycle, blackjack, bust, stand, guards, events)
+- ✅ Use cases — happy path + unhappy path for every one
+- ✅ Listener — verifies that `GameFinishedEvent` writes correctly into the ranking
+- ✅ Deterministic tests using injected shuffle strategy
 
-Relatório JaCoCo em `target/site/jacoco/index.html` depois de `mvn verify`.
+JaCoCo report available at `target/site/jacoco/index.html` after `mvn verify`.
 
 ---
 
-## 🎲 Fluxo completo — exemplo com `curl`
+## 🎲 Full flow — `curl` example
+
+Replace `<HOST>` with `localhost:8082` (local) or `s05-01-blackjack.onrender.com` (production).
 
 ```bash
-# 1) Criar jogo
-curl -X POST http://localhost:8082/api/v1/games
-
-# 2) Renomear player (usa o gameId retornado acima)
-curl -X PUT http://localhost:8082/api/v1/games/<GAME_ID>/player \
+# 1) Create a game (playerName in body is optional)
+curl -X POST http://<HOST>/api/v1/games \
   -H "Content-Type: application/json" \
   -d '{"playerName":"Jess"}'
 
-# 3) Pedir carta
-curl -X POST http://localhost:8082/api/v1/games/<GAME_ID>/hit
+# 2) Rename the player at any point
+curl -X PUT http://<HOST>/api/v1/games/<GAME_ID>/player \
+  -H "Content-Type: application/json" \
+  -d '{"playerName":"Jess"}'
 
-# 4) Plantar → dealer joga → resultado
-curl -X POST http://localhost:8082/api/v1/games/<GAME_ID>/stand
+# 3) Draw an extra card
+curl -X POST http://<HOST>/api/v1/games/<GAME_ID>/hit
 
-# 5) Ver ranking
-curl http://localhost:8082/api/v1/ranking
+# 4) Stand → dealer plays → resolve the game
+curl -X POST http://<HOST>/api/v1/games/<GAME_ID>/stand
+
+# 5) See the ranking
+curl http://<HOST>/api/v1/ranking
+
+# 6) Delete a game
+curl -X DELETE http://<HOST>/api/v1/games/<GAME_ID>
 ```
 
 ---
 
-## 🎯 Regras do jogo
+## 🎯 Game rules
 
-- 🃏 Baralho padrão de 52 cartas, embaralhado a cada nova partida
-- 👤 Player joga primeiro: pode `hit` (pedir carta) ou `stand` (plantar)
-- 🤖 Dealer para em **17 ou mais** (regra clássica de casino)
-- 🎉 **Blackjack** = 21 com as duas primeiras cartas → vitória imediata
-- 💥 **Bust** > 21 → derrota imediata
-- 🤝 Empate = **PUSH**
-- 🏆 O resultado de cada partida é registrado no ranking
+- 🃏 Standard 52-card deck, shuffled at every new game
+- 👤 Player plays first: can `hit` (draw) or `stand`
+- 🤖 Dealer stands on **17 or above** (classic casino rule)
+- 🎉 **Blackjack** = 21 with the first two cards → instant win
+- 💥 **Bust** > 21 → instant loss
+- 🤝 Tie = **PUSH**
+- 🏆 Every game result is stored in the ranking
 
 ---
- 
-** 👩‍💻  Jessica Borges**  
+
+**👩‍💻 Jessica Borges**  
 Java Backend Developer & Cybersecurity Student  
 🔗 [linkedin.com/in/jessica-borges-cyber](https://linkedin.com/in/jessica-borges-cyber)  
 🐙 [github.com/Borgesjesk](https://github.com/Borgesjesk)
