@@ -1,0 +1,6 @@
+.idea/
+*.iml
+qodana.yaml
+target/
+.DS_Store
+*.log
