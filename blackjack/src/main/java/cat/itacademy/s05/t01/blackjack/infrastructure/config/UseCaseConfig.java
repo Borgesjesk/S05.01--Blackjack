@@ -3,6 +3,7 @@ package cat.itacademy.s05.t01.blackjack.infrastructure.config;
 import cat.itacademy.s05.t01.blackjack.application.usecase.*;
 import cat.itacademy.s05.t01.blackjack.domain.port.GameRepository;
 import cat.itacademy.s05.t01.blackjack.domain.port.RankingRepository;
+import cat.itacademy.s05.t01.blackjack.application.usecase.DeleteGameUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -37,5 +38,10 @@ public class UseCaseConfig {
     @Bean
     public GetRankingUseCase getRankingUseCase(RankingRepository rankingRepository) {
         return new GetRankingUseCase(rankingRepository);
+    }
+
+    @Bean
+    public DeleteGameUseCase deleteGameUseCase(GameRepository gameRepository) {
+        return new DeleteGameUseCase(gameRepository);
     }
 }

@@ -24,7 +24,7 @@ class StartGameUseCaseTest {
     @Test
     @DisplayName("Creates a new game with default player name Anonymous")
     void start_createsGameWithDefaultName() {
-        GameResponseDTO response = useCase.execute();
+        GameResponseDTO response = useCase.execute(null);
 
         assertThat(response.gameId()).isNotBlank();
         assertThat(response.playerName()).isEqualTo("Anonymous");
@@ -33,14 +33,14 @@ class StartGameUseCaseTest {
     @Test
     @DisplayName("Persists the game via repository")
     void start_savesGame() {
-        useCase.execute();
+        useCase.execute(null);
         verify(gameRepository).save(any(Game.class));
     }
 
     @Test
     @DisplayName("Deals two cards to the player initially")
     void start_dealsTwoCardsToPlayer() {
-        GameResponseDTO response = useCase.execute();
+        GameResponseDTO response = useCase.execute(null);
 
         assertThat(response.playerHand().cards()).hasSize(2);
     }

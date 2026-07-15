@@ -14,11 +14,12 @@ public class StartGameUseCase {
         this.gameRepository = gameRepository;
     }
 
-    public GameResponseDTO execute() {
+    public GameResponseDTO execute(String playerName) {
         Game game = Game.start(cards -> Collections.shuffle(cards));
-
+        if (playerName != null && !playerName.isBlank()) {
+            game.renamePlayer(playerName);
+        }
         gameRepository.save(game);
-
         return GameResponseDTO.fromDomainSnapshot(game.toSnapshot());
     }
 }

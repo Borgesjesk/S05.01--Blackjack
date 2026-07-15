@@ -49,4 +49,12 @@ public class MongoRepositoryAdapter implements GameRepository {
                 .map(GameDocumentMapper::toSnapshot)
                 .map(Game::fromSnapshot);
     }
+
+    @Override
+    public void deleteById(String id) {
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("Game id must not be null or blank");
+        }
+        repository.deleteById(id);
+    }
 }
