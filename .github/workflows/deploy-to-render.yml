@@ -32,8 +32,8 @@ jobs:
           file: ./blackjack/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/blackjack-api:latest
-            ghcr.io/${{ github.repository_owner }}/blackjack-api:${{ github.sha }}
+            ghcr.io/borgesjesk/blackjack-api:latest
+            ghcr.io/borgesjesk/blackjack-api:${{ github.sha }}
 
       - name: Trigger Render deploy
         run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
