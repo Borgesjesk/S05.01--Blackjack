@@ -10,8 +10,11 @@ Blackjack backend built with **hexagonal architecture** using **Java 21** and **
 - 🚀 **API:** https://s05-01-blackjack.onrender.com
 - 📖 **Swagger UI:** https://s05-01-blackjack.onrender.com/swagger-ui.html
 - 🐳 **Docker Hub:** [`borgesjesk/blackjack-api`](https://hub.docker.com/r/borgesjesk/blackjack-api)
+- 📦 **GitHub Packages:** [`ghcr.io/borgesjesk/blackjack-api`](https://github.com/Borgesjesk/S05.01--Blackjack/pkgs/container/blackjack-api)
 
+[![Deploy to Render](https://github.com/Borgesjesk/S05.01--Blackjack/actions/workflows/deploy-to-render.yml/badge.svg)](https://github.com/Borgesjesk/S05.01--Blackjack/actions/workflows/deploy-to-render.yml)
 
+> ⚠️ Render's free tier goes to sleep after 15 min of inactivity — the first request may take ~30s to wake up.
 
 ---
 
@@ -141,6 +144,17 @@ Or build it locally:
 ```bash
 docker build -t blackjack-api .
 ```
+
+---
+## 🔄 CI/CD
+
+Every push to `main` triggers a GitHub Actions workflow that:
+
+1. 🏗️ Builds the Docker image
+2. 📦 Publishes it to GitHub Container Registry (`ghcr.io/borgesjesk/blackjack-api`)
+3. 🚀 Triggers an automatic deploy on Render
+
+Workflow file: [`.github/workflows/deploy-to-render.yml`](../.github/workflows/deploy-to-render.yml)
 
 ---
 
